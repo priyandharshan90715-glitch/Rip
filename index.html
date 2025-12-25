@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SiteCraft.top – Login</title>
+
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap');
+*{margin:0;padding:0;box-sizing:border-box;font-family:Poppins,sans-serif;}
+body{height:100vh;display:flex;justify-content:center;align-items:center;background:#121212;color:#fff;}
+.container{width:380px;background:#1e1e1e;padding:30px;border-radius:18px;}
+h2{text-align:center;margin-bottom:20px;}
+.input{margin-bottom:15px;}
+label{font-size:14px;color:#bbb;}
+input{width:100%;padding:12px;margin-top:6px;border-radius:6px;border:1px solid #444;background:#2c2c2c;color:#fff;}
+button{width:100%;padding:12px;margin-top:12px;border:none;border-radius:8px;background:#4b6bfb;color:#fff;font-weight:600;cursor:pointer;}
+button:hover{background:#3a54d1;}
+.link{text-align:center;margin-top:12px;}
+.link span{color:#4b6bfb;cursor:pointer;font-weight:600;}
+.hidden{display:none;}
+</style>
+</head>
+<body>
+
+<div class="container">
+
+<!-- LOGIN -->
+<div id="loginBox">
+  <h2>Login</h2>
+  <div class="input">
+    <label>Username</label>
+    <input id="loginUser">
+  </div>
+  <div class="input">
+    <label>Password</label>
+    <input id="loginPass" type="password">
+  </div>
+  <button onclick="login()">Login</button>
+  <div class="link">
+    <span onclick="showRegister()">Sign Up</span> | 
+    <span onclick="showForgot()">Forgot?</span>
+  </div>
+</div>
+
+<!-- REGISTER -->
+<div id="registerBox" class="hidden">
+  <h2>Sign Up</h2>
+  <div class="input">
+    <label>Username</label>
+    <input id="regUser">
+  </div>
+  <div class="input">
+    <label>Email</label>
+    <input id="regEmail" type="email">
+  </div>
+  <div class="input">
+    <label>Password</label>
+    <input id="regPass" type="password">
+  </div>
+  <button onclick="register()">Create Account</button>
+  <div class="link">
+    <span onclick="showLogin()">Back to Login</span>
+  </div>
+</div>
+
+<!-- FORGOT -->
+<div id="forgotBox" class="hidden">
+  <h2>Forgot Password</h2>
+  <div class="input">
+    <label>Username</label>
+    <input id="fpUser">
+  </div>
+  <div class="input">
+    <label>Email</label>
+    <input id="fpEmail" type="email">
+  </div>
+  <button onclick="forgot()">Submit</button>
+  <div class="link">
+    <span onclick="showLogin()">Back to Login</span>
+  </div>
+</div>
+
+</div>
+
+<script>
+// ========================
+// VIEW SWITCH
+// ========================
+function showLogin(){
+  loginBox.classList.remove("hidden");
+  registerBox.classList.add("hidden");
+  forgotBox.classList.add("hidden");
+}
+function showRegister(){
+  loginBox.classList.add("hidden");
+  registerBox.classList.remove("hidden");
+  forgotBox.classList.add("hidden");
+}
+function showForgot(){
+  loginBox.classList.add("hidden");
+  registerBox.classList.add("hidden");
+  forgotBox.classList.remove("hidden");
+}
+
+// ========================
+// REGISTER
+// ========================
+function register(){
+  if(!regUser.value || !regEmail.value || !regPass.value){
+    alert("Fill all fields");
+    return;
+  }
+  localStorage.setItem("user_"+regUser.value,
+    JSON.stringify({email:regEmail.value,pass:regPass.value})
+  );
+  alert("Registered successfully");
+  showLogin();
+}
+
+// ========================
+// LOGIN (ADMIN + USER)
+// ========================
+function login(){
+  const u = loginUser.value.trim();
+  const p = loginPass.value.trim();
+
+  if(!u || !p){
+    alert("Fill all fields");
+    return;
+  }
+
+  // ADMIN
+  if(u === "admin"){
+    if(p !== "Admin@123"){
+      alert("Invalid admin credentials");
+      return;
+    }
+    localStorage.setItem("currentUser","admin");
+    localStorage.setItem("currentRole","admin");
+    location.href="dashboard.html";
+    return;
+  }
+
+  // USER
+  const saved = localStorage.getItem("user_"+u);
+  if(!saved){
+    alert("User not registered");
+    return;
+  }
+
+  const data = JSON.parse(saved);
+  if(p !== data.pass){
+    alert("Wrong password");
+    return;
+  }
+
+  localStorage.setItem("currentUser",u);
+  localStorage.setItem("currentRole","user");
+  location.href="dashboard.html";
+}
+
+// ========================
+// FORGOT
+// ========================
+function forgot(){
+  if(!fpUser.value || !fpEmail.value){
+    alert("Fill all fields");
+    return;
+  }
+  alert("Request sent to admin");
+  showLogin();
+}
+</script>
+
+</body>
+</html>
