@@ -37,12 +37,17 @@ label{
   margin-top:12px;
 }
 
-select{
+select, textarea{
   width:100%;
   padding:12px;
   margin-top:6px;
   border-radius:8px;
   border:1px solid #ccc;
+  resize:none;
+}
+
+textarea.readonly{
+  background:#eaeaea;
 }
 
 button{
@@ -61,16 +66,12 @@ button:hover{
   background:#3a54d1;
 }
 
-.readonly{
-  background:#eaeaea;
+.logout{
+  background:#ff4444;
 }
 
 .hidden{
   display:none;
-}
-
-.logout{
-  background:#ff4444;
 }
 </style>
 </head>
@@ -85,17 +86,15 @@ button:hover{
     <select id="userSelect"></select>
   </div>
 
-  <!-- PURCHASED ITEM -->
-  <label>Purchased Item</label>
-  <select id="itemSelect"></select>
+  <!-- MANUAL ITEM FIELD -->
+  <label>Purchased Items / Details</label>
+  <textarea id="itemBox" rows="5" placeholder="Write purchased items here..."></textarea>
 
   <button id="saveBtn">Save</button>
   <button class="logout" onclick="logout()">Logout</button>
 </div>
 
 <script>
-const PRODUCTS = ["Basic Plan", "Pro Plan", "Premium Plan"];
-
 const currentUser = localStorage.getItem("currentUser");
 const role = localStorage.getItem("currentRole");
 
@@ -108,17 +107,8 @@ const isAdmin = role === "admin";
 const title = document.getElementById("title");
 const adminPanel = document.getElementById("adminPanel");
 const userSelect = document.getElementById("userSelect");
-const itemSelect = document.getElementById("itemSelect");
+const itemBox = document.getElementById("itemBox");
 const saveBtn = document.getElementById("saveBtn");
-
-// --------------------
-// Load product options
-PRODUCTS.forEach(p=>{
-  const opt = document.createElement("option");
-  opt.value = p;
-  opt.textContent = p;
-  itemSelect.appendChild(opt);
-});
 
 // --------------------
 // Get all registered users
@@ -129,10 +119,10 @@ function getUsers(){
 }
 
 // --------------------
-// Load item for user
+// Load items for user
 function loadItem(user){
   const saved = localStorage.getItem("item_" + user);
-  itemSelect.value = saved || PRODUCTS[0];
+  itemBox.value = saved || "";
 }
 
 // --------------------
@@ -158,10 +148,10 @@ if(isAdmin){
 // --------------------
 // USER MODE
 }else{
-  title.textContent = "Your Purchased Item";
+  title.textContent = "Your Purchased Items";
   adminPanel.classList.add("hidden");
-  itemSelect.disabled = true;
-  itemSelect.classList.add("readonly");
+  itemBox.readOnly = true;
+  itemBox.classList.add("readonly");
   saveBtn.style.display = "none";
   loadItem(currentUser);
 }
@@ -170,8 +160,8 @@ if(isAdmin){
 // SAVE (ADMIN ONLY)
 saveBtn.onclick = ()=>{
   const targetUser = userSelect.value;
-  localStorage.setItem("item_" + targetUser, itemSelect.value);
-  alert("Updated for " + targetUser);
+  localStorage.setItem("item_" + targetUser, itemBox.value);
+  alert("Saved successfully for " + targetUser);
 };
 
 // --------------------
