@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dashboard</title>
+
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap');
+
+*{margin:0;padding:0;box-sizing:border-box;font-family:Poppins,sans-serif;}
+
+body{
+  background:#f4f4f4;
+  min-height:100vh;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+}
+
+.box{
+  width:420px;
+  background:#fff;
+  padding:25px;
+  border-radius:18px;
+  box-shadow:0 0 20px rgba(0,0,0,0.15);
+}
+
+h2{
+  text-align:center;
+  margin-bottom:18px;
+}
+
+label{
+  font-weight:600;
+  display:block;
+  margin-top:12px;
+}
+
+select{
+  width:100%;
+  padding:12px;
+  margin-top:6px;
+  border-radius:8px;
+  border:1px solid #ccc;
+}
+
+button{
+  width:100%;
+  padding:12px;
+  margin-top:18px;
+  border:none;
+  border-radius:10px;
+  background:#4b6bfb;
+  color:#fff;
+  font-weight:600;
+  cursor:pointer;
+}
+
+button:hover{
+  background:#3a54d1;
+}
+
+.readonly{
+  background:#eaeaea;
+}
+
+.hidden{
+  display:none;
+}
+
+.logout{
+  background:#ff4444;
+}
+</style>
+</head>
+<body>
+
+<div class="box">
+  <h2 id="title"></h2>
+
+  <!-- ADMIN: USER SELECT -->
+  <div id="adminPanel">
+    <label>Select User</label>
+    <select id="userSelect"></select>
+  </div>
+
+  <!-- PURCHASED ITEM -->
+  <label>Purchased Item</label>
+  <select id="itemSelect"></select>
+
+  <button id="saveBtn">Save</button>
+  <button class="logout" onclick="logout()">Logout</button>
+</div>
+
+<script>
+const PRODUCTS = ["Basic Plan", "Pro Plan", "Premium Plan"];
+
+const currentUser = localStorage.getItem("currentUser");
+const role = localStorage.getItem("currentRole");
+
+if(!currentUser || !role){
+  location.href = "index.html";
+}
+
+const isAdmin = role === "admin";
+
+const title = document.getElementById("title");
+const adminPanel = document.getElementById("adminPanel");
+const userSelect = document.getElementById("userSelect");
+const itemSelect = document.getElementById("itemSelect");
+const saveBtn = document.getElementById("saveBtn");
+
+// --------------------
+// Load product options
+PRODUCTS.forEach(p=>{
+  const opt = document.createElement("option");
+  opt.value = p;
+  opt.textContent = p;
+  itemSelect.appendChild(opt);
+});
+
+// --------------------
+// Get all registered users
+function getUsers(){
+  return Object.keys(localStorage)
+    .filter(k => k.startsWith("user_"))
+    .map(k => k.replace("user_",""));
+}
+
+// --------------------
+// Load item for user
+function loadItem(user){
+  const saved = localStorage.getItem("item_" + user);
+  itemSelect.value = saved || PRODUCTS[0];
+}
+
+// --------------------
+// ADMIN MODE
+if(isAdmin){
+  title.textContent = "Admin Dashboard";
+
+  getUsers().forEach(u=>{
+    const opt = document.createElement("option");
+    opt.value = u;
+    opt.textContent = u;
+    userSelect.appendChild(opt);
+  });
+
+  userSelect.onchange = ()=>{
+    loadItem(userSelect.value);
+  };
+
+  if(userSelect.value){
+    loadItem(userSelect.value);
+  }
+
+// --------------------
+// USER MODE
+}else{
+  title.textContent = "Your Purchased Item";
+  adminPanel.classList.add("hidden");
+  itemSelect.disabled = true;
+  itemSelect.classList.add("readonly");
+  saveBtn.style.display = "none";
+  loadItem(currentUser);
+}
+
+// --------------------
+// SAVE (ADMIN ONLY)
+saveBtn.onclick = ()=>{
+  const targetUser = userSelect.value;
+  localStorage.setItem("item_" + targetUser, itemSelect.value);
+  alert("Updated for " + targetUser);
+};
+
+// --------------------
+// LOGOUT
+function logout(){
+  localStorage.removeItem("currentUser");
+  localStorage.removeItem("currentRole");
+  location.href = "index.html";
+}
+</script>
+
+</body>
+</html>
